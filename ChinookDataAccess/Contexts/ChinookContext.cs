@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
-using Chinook.Models;
+﻿using ChinookDataAccess.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
-namespace Chinook;
+namespace ChinookDataAccess.Contexts;
 
 public partial class ChinookContext : IdentityDbContext<ChinookUser>
 {
@@ -29,6 +27,7 @@ public partial class ChinookContext : IdentityDbContext<ChinookUser>
     public virtual DbSet<Playlist> Playlists { get; set; } = null!;
     public virtual DbSet<Track> Tracks { get; set; } = null!;
     public virtual DbSet<UserPlaylist> UserPlaylists { get; set; } = null!;
+    public virtual DbSet<PlayListTrack> PlayListTracks { get; set; } = null!;
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -283,6 +282,12 @@ public partial class ChinookContext : IdentityDbContext<ChinookUser>
             entity.HasOne(up => up.Playlist)
                 .WithMany(u => u.UserPlaylists)
                 .HasForeignKey(up => up.PlaylistId);
+        });
+
+        modelBuilder.Entity<PlayListTrack>(entity =>
+        {
+            entity.ToTable("PlayListTrack");
+            entity.HasKey(bc => new { bc.PlayListId, bc.TrackId });
         });
 
         OnModelCreatingPartial(modelBuilder);

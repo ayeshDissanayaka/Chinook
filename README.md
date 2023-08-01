@@ -14,3 +14,14 @@ When creating a user account, you will see this:
 After you click 'Click here to confirm your account' you should be able to login.
 
 Please put the code in Github. Please put the original code (our code) in the master branch, put your code in a separate branch, and make a pull request to the master branch.
+
+# update from Developer
+
+This Application fullfilled with requested requirements.
+1.entire data loads from seperate data access class library.
+2.favourites can be added by clicking star marks on the relevent songs.
+3.all the user related menu items are listed in the nav bar itself.
+4.adding exsiting tracks,adding new playlist fully functioning with error handling.
+5.came up with a search tool which can drived for any other places as well in future.
+5.relevent hardcoded methodes and dropdowns are filled with acutally server data.
+
