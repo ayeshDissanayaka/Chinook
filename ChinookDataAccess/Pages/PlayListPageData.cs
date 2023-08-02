@@ -21,10 +21,14 @@ namespace ChinookDataAccess.Pages
             _dbContextFactory = dbContextFactory;
             _logger = logger;
         }
-        public async Task<List<UserPlaylist>> getPlayListByUser(string userId)
+        public async Task<List<UserPlaylist>?> getPlayListByUser(string userId)
         {
             var dbContext = await _dbContextFactory.CreateDbContextAsync();
-            var userPlayList = await dbContext.UserPlaylists.Where(a => a.UserId == userId.Trim()).ToListAsync();
+            var userPlayList = new List<UserPlaylist>();
+            if (!string.IsNullOrEmpty(userId))
+            {
+                userPlayList = dbContext.UserPlaylists.Where(a => a.UserId == userId.Trim()).ToList();
+            }
             return userPlayList;
         }
         public async Task<Models.Playlist> getPlayListById(long playListId)
