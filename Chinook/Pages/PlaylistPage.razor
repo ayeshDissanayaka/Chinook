@@ -1,7 +1,8 @@
 ﻿@page "/playlist/{PlaylistId:long}"
 @attribute [Authorize]
 
-@using Chinook.Models
+@using ChinookDataAccess.Contexts;
+@using ChinookDataAccess.PageData.Interfaces;
 @using Microsoft.EntityFrameworkCore
 @using System.Security.Claims;
 
@@ -62,10 +63,12 @@ else
 
 @code {
     [Parameter] public long PlaylistId { get; set; }
-    [Inject] IDbContextFactory<ChinookContext> DbFactory { get; set; }
+    [Inject] IPlayListPageData _playListDataAccess { get; set; }
     [CascadingParameter] private Task<AuthenticationState> authenticationState { get; set; }
 
-    private Chinook.ClientModels.Playlist Playlist;
+    @inject NavigationManager navigationManager
+
+    private ChinookDataAccess.ClientModels.Playlist Playlist;
     private string CurrentUserId;
     private string InfoMessage;
 
@@ -74,24 +77,7 @@ else
         CurrentUserId = await GetUserId();
 
         await InvokeAsync(StateHasChanged);
-        var DbContext = await DbFactory.CreateDbContextAsync();
-
-        Playlist = DbContext.Playlists
-            .Include(a => a.Tracks).ThenInclude(a => a.Album).ThenInclude(a => a.Artist)
-            .Where(p => p.PlaylistId == PlaylistId)
-            .Select(p => new ClientModels.Playlist()
-                {
-                    Name = p.Name,
-                    Tracks = p.Tracks.Select(t => new ClientModels.PlaylistTrack()
-                    {
-                        AlbumTitle = t.Album.Title,
-                        ArtistName = t.Album.Artist.Name,
-                        TrackId = t.TrackId,
-                        TrackName = t.Name,
-                        IsFavorite = t.Playlists.Where(p => p.UserPlaylists.Any(up => up.UserId == CurrentUserId && up.Playlist.Name == "Favorites")).Any()
-                    }).ToList()
-                })
-            .FirstOrDefault();
+        Playlist = await _playListDataAccess.getPlayListDetailsByUserId(CurrentUserId, PlaylistId);
     }
 
     private async Task<string> GetUserId()
@@ -103,20 +89,29 @@ else
 
     private void FavoriteTrack(long trackId)
     {
+        string saveRec = string.Empty;
         var track = Playlist.Tracks.FirstOrDefault(t => t.TrackId == trackId);
+        saveRec = _playListDataAccess.postTracksForPlayList("Favorite", trackId, GetUserId().Result).Result;
+        navigationManager.NavigateTo($"/PlayList/{PlaylistId}", true);
         InfoMessage = $"Track {track.ArtistName} - {track.AlbumTitle} - {track.TrackName} added to playlist Favorites.";
     }
 
     private void UnfavoriteTrack(long trackId)
     {
+        string removeRec = string.Empty;
         var track = Playlist.Tracks.FirstOrDefault(t => t.TrackId == trackId);
+        removeRec = _playListDataAccess.removeTrackFromPlayList("Favorite", trackId, GetUserId().Result).Result;
+        navigationManager.NavigateTo($"/PlayList/{PlaylistId}", true);
         InfoMessage = $"Track {track.ArtistName} - {track.AlbumTitle} - {track.TrackName} removed from playlist Favorites.";
     }
 
     private void RemoveTrack(long trackId)
     {
+        string removeRec = string.Empty;
+        var track = Playlist.Tracks.FirstOrDefault(t => t.TrackId == trackId);
+        removeRec = _playListDataAccess.removeTrackFromPlayList(Playlist.Name, trackId, GetUserId().Result).Result;
+        navigationManager.NavigateTo($"/PlayList/{PlaylistId}", true);
         CloseInfoMessage();
-
     }
 
     private void CloseInfoMessage()

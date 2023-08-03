@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 
-namespace Chinook.Models;
+namespace ChinookDataAccess.Models;
 
 // Add profile data for application users by adding properties to the ChinookUser class
 public class ChinookUser : IdentityUser

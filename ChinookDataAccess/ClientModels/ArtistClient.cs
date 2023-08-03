@@ -1,11 +1,12 @@
-﻿using System;
+﻿using ChinookDataAccess.Models;
+using System;
 using System.Collections.Generic;
 
-namespace Chinook.Models
+namespace ChinookDataAccess.ClientModels
 {
-    public partial class Artist
+    public partial class ArtistClient
     {
-        public Artist()
+        public ArtistClient()
         {
             Albums = new HashSet<Album>();
         }
