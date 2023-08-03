@@ -1,16 +1,11 @@
-﻿using ChinookDataAccess.Models;
+﻿using ChinookDataAccess.ClientModels;
 using ChinookDataAccess.Contexts;
+using ChinookDataAccess.Models;
+using ChinookDataAccess.PageData.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ChinookDataAccess.Pages.Interfaces;
-using ChinookDataAccess.ClientModels;
 using Microsoft.Extensions.Logging;
 
-namespace ChinookDataAccess.Pages
+namespace ChinookDataAccess.PageData
 {
     public class PlayListPageData : IPlayListPageData
     {
@@ -21,7 +16,7 @@ namespace ChinookDataAccess.Pages
             _dbContextFactory = dbContextFactory;
             _logger = logger;
         }
-        public async Task<List<UserPlaylist>?> getPlayListByUser(string userId)
+        public async Task<List<UserPlaylistClient>?> getPlayListByUser(string userId)
         {
             var dbContext = await _dbContextFactory.CreateDbContextAsync();
             var userPlayList = new List<UserPlaylist>();
@@ -29,8 +24,28 @@ namespace ChinookDataAccess.Pages
             {
                 userPlayList = dbContext.UserPlaylists.Where(a => a.UserId == userId.Trim()).ToList();
             }
+            return mapUserPlayListClient(userPlayList);
+        }
+
+        public async Task<List<UserPlaylistClient>?> getFilteredPlayListByUser(long trackId, string userId)
+        {
+            var dbContext = await _dbContextFactory.CreateDbContextAsync();
+            var TrackPlayList = new List<Models.PlayListTrack>();
+            var userPlayList = new List<UserPlaylistClient>();
+            var userSelectedPlayLists = new List<UserPlaylistClient>();
+            var trackOwnedPlayLists= dbContext.PlayListTracks.Where(a=>a.TrackId.Equals(trackId)).ToList();
+            var userPlayListData = dbContext.UserPlaylists.Where(a => a.UserId == userId.Trim()).ToList();
+            userPlayList = mapUserPlayListClient(userPlayListData);
+            if (trackOwnedPlayLists.Any())
+            {
+                var containedUserPlayList = userPlayList.Where(a => !trackOwnedPlayLists.Select(c=>c.PlayListId).Contains(a.PlaylistId)).ToList();
+                userPlayList = containedUserPlayList;
+                return userPlayList;
+            }
+
             return userPlayList;
         }
+
         public async Task<Models.Playlist> getPlayListById(long playListId)
         {
             var dbContext = await _dbContextFactory.CreateDbContextAsync();
@@ -45,13 +60,13 @@ namespace ChinookDataAccess.Pages
             .Select(p => new ChinookDataAccess.ClientModels.Playlist()
             {
                 Name = p.Name,
-                Tracks = p.Tracks.Select(t => new ChinookDataAccess.ClientModels.PlaylistTrack()
+                Tracks = p.Tracks.Select(t => new ChinookDataAccess.ClientModels.PlaylistTrackClient()
                 {
                     AlbumTitle = t.Album.Title,
                     ArtistName = t.Album.Artist.Name,
                     TrackId = t.TrackId,
                     TrackName = t.Name,
-                    IsFavorite = t.Playlists.Where(p => p.UserPlaylists.Any(up => up.UserId == userId && up.Playlist.Name == "Favorites")).Any()
+                    IsFavorite = t.Playlists.Where(p => p.UserPlaylists.Any(up => up.UserId == userId && up.PlaylistId == 19)).Any()
                 }).ToList()
             })
             .FirstOrDefault();
@@ -102,6 +117,34 @@ namespace ChinookDataAccess.Pages
             }
             return "Sucess";
         }
+
+
+        public async Task<string?> removeTrackFromPlayList(string playListName, long trackId, string? userId)
+        {
+            var dbContext = await _dbContextFactory.CreateDbContextAsync();
+            try
+            {
+                var playListObj=dbContext.Playlists.Where(a=>a.Name==playListName).FirstOrDefault();
+                if (playListObj != null)
+                {
+                    var playListTrackObj = dbContext.PlayListTracks.Where(a => a.TrackId == trackId && a.PlayListId == playListObj.PlaylistId).FirstOrDefault();
+                    if (playListTrackObj != null)
+                    {
+                        dbContext.PlayListTracks.Remove(playListTrackObj);
+                        await dbContext.SaveChangesAsync();
+                    }
+                }
+
+                return "Sucess";
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("PlayListError", ex.Message);
+                return null;
+            }
+
+        }
+
         #region Mappers
         private PlayListTrack mapPlayListTracks (long playListId,long trackId)
         {
@@ -130,6 +173,22 @@ namespace ChinookDataAccess.Pages
             };
             return playListUserObj;
         }
+
+        private List<UserPlaylistClient> mapUserPlayListClient(List<UserPlaylist> modelUserPlayList)
+        {
+            var userPlayList=new List<UserPlaylistClient>();
+            foreach(var playlist in modelUserPlayList)
+            {
+                var newUserPlayList = new UserPlaylistClient()
+                {
+                    PlaylistId = playlist.PlaylistId,
+                    UserId = playlist.UserId
+                };
+                userPlayList.Add(newUserPlayList);
+            }
+            return userPlayList;
+        }
+       
         #endregion
         private async Task<Models.Playlist> getExsistingPlayLists(string playListName)
         {

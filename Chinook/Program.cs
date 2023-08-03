@@ -1,12 +1,10 @@
-using Chinook;
 using Chinook.Areas.Identity;
-using ChinookDataAccess.Models;
 using ChinookDataAccess.Contexts;
 using ChinookDataAccess.Models;
+using ChinookDataAccess.PageData;
+using ChinookDataAccess.PageData.Interfaces;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.EntityFrameworkCore;
-using ChinookDataAccess.Pages.Interfaces;
-using ChinookDataAccess.Pages;
 
 var builder = WebApplication.CreateBuilder(args);
 

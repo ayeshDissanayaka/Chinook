@@ -1,4 +1,5 @@
-﻿using ChinookDataAccess.Models;
+﻿using ChinookDataAccess.ClientModels;
+using ChinookDataAccess.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -24,7 +25,7 @@ public partial class ChinookContext : IdentityDbContext<ChinookUser>
     public virtual DbSet<Invoice> Invoices { get; set; } = null!;
     public virtual DbSet<InvoiceLine> InvoiceLines { get; set; } = null!;
     public virtual DbSet<MediaType> MediaTypes { get; set; } = null!;
-    public virtual DbSet<Playlist> Playlists { get; set; } = null!;
+    public virtual DbSet<Models.Playlist> Playlists { get; set; } = null!;
     public virtual DbSet<Track> Tracks { get; set; } = null!;
     public virtual DbSet<UserPlaylist> UserPlaylists { get; set; } = null!;
     public virtual DbSet<PlayListTrack> PlayListTracks { get; set; } = null!;
@@ -213,7 +214,7 @@ public partial class ChinookContext : IdentityDbContext<ChinookUser>
             entity.Property(e => e.Name).HasColumnType("NVARCHAR(120)");
         });
 
-        modelBuilder.Entity<Playlist>(entity =>
+        modelBuilder.Entity<Models.Playlist>(entity =>
         {
             entity.ToTable("Playlist");
 
@@ -226,7 +227,7 @@ public partial class ChinookContext : IdentityDbContext<ChinookUser>
                 .UsingEntity<Dictionary<string, object>>(
                     "PlaylistTrack",
                     l => l.HasOne<Track>().WithMany().HasForeignKey("TrackId").OnDelete(DeleteBehavior.ClientSetNull),
-                    r => r.HasOne<Playlist>().WithMany().HasForeignKey("PlaylistId").OnDelete(DeleteBehavior.ClientSetNull),
+                    r => r.HasOne<Models.Playlist>().WithMany().HasForeignKey("PlaylistId").OnDelete(DeleteBehavior.ClientSetNull),
                     j =>
                     {
                         j.HasKey("PlaylistId", "TrackId");

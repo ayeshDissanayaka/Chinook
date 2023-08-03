@@ -1,5 +1,7 @@
-﻿@using ChinookDataAccess.Models;
-@using ChinookDataAccess.Pages.Interfaces;
+﻿
+@using ChinookDataAccess.ClientModels;
+@using ChinookDataAccess.Models;
+@using ChinookDataAccess.PageData.Interfaces;
 @using System.Security.Claims;
 <div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
@@ -34,8 +36,8 @@
 @code {
     @inject NavigationManager navigationManager
     private bool collapseNavMenu = true;
-    private List<UserPlaylist?> userPlaylists;
-    private Playlist playLists;
+    private List<UserPlaylistClient?> userPlaylists;
+    private ChinookDataAccess.Models.Playlist playLists;
     [Inject] IPlayListPageData _playListDataAccess { get; set; }
     [CascadingParameter] private Task<AuthenticationState> authenticationState { get; set; }
     private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
@@ -47,7 +49,13 @@
     protected override async Task OnInitializedAsync()
     {
         string userId = GetUserId();
-        userPlaylists = await _playListDataAccess.getPlayListByUser(userId) ?? null;
+        var isPlayListdbValve = _playListDataAccess.getPlayListByUser(userId).Result.Any();
+        
+        if (isPlayListdbValve)
+        {
+            var playListdbValve = _playListDataAccess.getPlayListByUser(userId).Result;
+            userPlaylists = playListdbValve;
+        }
         await InvokeAsync(StateHasChanged);
     }
     private string GetUserId()
@@ -56,7 +64,7 @@
         var userId = user.FindFirst(u => u.Type.Contains(ClaimTypes.NameIdentifier))?.Value;
         return userId;
     }
-    private async Task<Playlist> GetPlayListById(long playListId)
+    private async Task<ChinookDataAccess.Models.Playlist> GetPlayListById(long playListId)
     {
         playLists = await _playListDataAccess.getPlayListById(playListId)??null;
         return playLists;
@@ -65,4 +73,5 @@
     {
         navigationManager.NavigateTo($"/PlayList/{id}");
     }
+
 }

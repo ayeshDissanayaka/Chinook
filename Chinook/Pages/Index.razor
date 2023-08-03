@@ -1,6 +1,7 @@
 ﻿@page "/"
+@using ChinookDataAccess.ClientModels;
 @using ChinookDataAccess.Models;
-@using ChinookDataAccess.Pages.Interfaces;
+@using ChinookDataAccess.PageData.Interfaces;
 @attribute [Authorize]
 @using ChinookDataAccess.Models;
 @using Microsoft.EntityFrameworkCore
@@ -38,8 +39,8 @@ else
 }
 
 @code {
-    private List<Artist> Artists;
-    private List<Artist> filteredArtists=new();
+    private List<ArtistClient> Artists;
+    private List<ArtistClient> filteredArtists=new();
     [Inject] IIndexData  _indexDataAccess { get; set; }
 
     protected override async Task OnInitializedAsync() {

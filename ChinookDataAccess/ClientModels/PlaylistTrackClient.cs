@@ -1,6 +1,6 @@
 namespace ChinookDataAccess.ClientModels;
 
-public class PlaylistTrack
+public class PlaylistTrackClient
 {
     public long TrackId { get; set; }
     public string TrackName { get; set; }

@@ -3,7 +3,7 @@
 
 @using ChinookDataAccess.Contexts;
 @using ChinookDataAccess.Models
-@using ChinookDataAccess.Pages.Interfaces;
+@using ChinookDataAccess.PageData.Interfaces;
 @using Microsoft.EntityFrameworkCore
 @using System.Security.Claims;
 
@@ -67,6 +67,8 @@ else
     [Inject] IPlayListPageData _playListDataAccess { get; set; }
     [CascadingParameter] private Task<AuthenticationState> authenticationState { get; set; }
 
+    @inject NavigationManager navigationManager
+
     private ChinookDataAccess.ClientModels.Playlist Playlist;
     private string CurrentUserId;
     private string InfoMessage;
@@ -88,20 +90,29 @@ else
 
     private void FavoriteTrack(long trackId)
     {
+        string saveRec = string.Empty;
         var track = Playlist.Tracks.FirstOrDefault(t => t.TrackId == trackId);
+        saveRec = _playListDataAccess.postTracksForPlayList("Favorite", trackId, GetUserId().Result).Result;
+        navigationManager.NavigateTo($"/PlayList/{PlaylistId}", true);
         InfoMessage = $"Track {track.ArtistName} - {track.AlbumTitle} - {track.TrackName} added to playlist Favorites.";
     }
 
     private void UnfavoriteTrack(long trackId)
     {
+        string removeRec = string.Empty;
         var track = Playlist.Tracks.FirstOrDefault(t => t.TrackId == trackId);
+        removeRec = _playListDataAccess.removeTrackFromPlayList("Favorite", trackId, GetUserId().Result).Result;
+        navigationManager.NavigateTo($"/PlayList/{PlaylistId}", true);
         InfoMessage = $"Track {track.ArtistName} - {track.AlbumTitle} - {track.TrackName} removed from playlist Favorites.";
     }
 
     private void RemoveTrack(long trackId)
     {
+        string removeRec = string.Empty;
+        var track = Playlist.Tracks.FirstOrDefault(t => t.TrackId == trackId);
+        removeRec = _playListDataAccess.removeTrackFromPlayList(Playlist.Name, trackId, GetUserId().Result).Result;
+        navigationManager.NavigateTo($"/PlayList/{PlaylistId}", true);
         CloseInfoMessage();
-
     }
 
     private void CloseInfoMessage()
