@@ -1,7 +1,8 @@
 ﻿@page "/"
+@using ChinookDataAccess.ClientModels;
+@using ChinookDataAccess.PageData.Interfaces;
 @attribute [Authorize]
-
-@using Chinook.Models
+@using ChinookDataAccess.Models;
 @using Microsoft.EntityFrameworkCore
 
 <PageTitle>Index</PageTitle>
@@ -14,6 +15,9 @@
 }
 else
 {
+    <div class="w-50">
+        <SearchBox Items="Artists" OnSearch="SearchFilteredArtists"></SearchBox>
+    </div>
     <table class="table table-striped table-hover table-sm">
         <thead>
             <tr>
@@ -22,11 +26,11 @@ else
             </tr>
         </thead>
         <tbody>
-            @foreach (var artist in Artists)
+            @foreach (var artist in filteredArtists)
             {
                 <tr>
                     <td><a href="Artist/@artist.ArtistId">@artist.Name</a></td>
-                    <td>@artist.Albums.Count()</td>
+                    <td>@GetAlbumsForArtist(Convert.ToInt32(artist.ArtistId))</td>
                 </tr>
             }
         </tbody>
@@ -34,25 +38,30 @@ else
 }
 
 @code {
-    private List<Artist> Artists;
-    [Inject] IDbContextFactory<ChinookContext> DbFactory { get; set; }
+    private List<ArtistClient> Artists;
+    private List<ArtistClient> filteredArtists=new();
+    [Inject] IIndexData  _indexDataAccess { get; set; }
 
     protected override async Task OnInitializedAsync() {
         await InvokeAsync(StateHasChanged);
-        Artists = await GetArtists();
+        Artists = await _indexDataAccess.GetArtists();
+        filteredArtists = Artists;
     }
 
-    public async Task<List<Artist>> GetArtists()
-    {   
-        var dbContext = await DbFactory.CreateDbContextAsync();
-        var users = dbContext.Users.Include(a => a.UserPlaylists).ToList();
-        
-        return dbContext.Artists.ToList();
-    }
-
-    public async Task<List<Album>> GetAlbumsForArtist(int artistId)
+    public int GetAlbumsForArtist(int artistId)
     {
-        var dbContext = await DbFactory.CreateDbContextAsync();
-        return dbContext.Albums.Where(a => a.ArtistId == artistId).ToList();
+        var albumCount= _indexDataAccess.GetAlbumsForArtist(artistId).Result;
+        return albumCount.Count();
+    }
+    private void SearchFilteredArtists(string searchItem)
+    {
+        if (string.IsNullOrEmpty(searchItem))
+        {
+            filteredArtists = Artists;
+        }
+        else
+        {
+            filteredArtists = Artists.Where(a => a.Name.Contains(searchItem, StringComparison.OrdinalIgnoreCase)).ToList();
+        }
     }
 }

@@ -10,6 +10,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution", "Solution", "{7A
 		README.md = README.md
 	EndProjectSection
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChinookDataAccess", "ChinookDataAccess\ChinookDataAccess.csproj", "{1B6B9D4F-2ECE-4895-80E2-04318BA8DD6B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -20,6 +22,10 @@ Global
 		{4F9CE74D-8572-40F8-B76E-3339126D1CCC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4F9CE74D-8572-40F8-B76E-3339126D1CCC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4F9CE74D-8572-40F8-B76E-3339126D1CCC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1B6B9D4F-2ECE-4895-80E2-04318BA8DD6B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1B6B9D4F-2ECE-4895-80E2-04318BA8DD6B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1B6B9D4F-2ECE-4895-80E2-04318BA8DD6B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1B6B9D4F-2ECE-4895-80E2-04318BA8DD6B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

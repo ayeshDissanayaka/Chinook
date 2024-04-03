@@ -1,6 +1,8 @@
-using Chinook;
 using Chinook.Areas.Identity;
-using Chinook.Models;
+using ChinookDataAccess.Contexts;
+using ChinookDataAccess.Models;
+using ChinookDataAccess.PageData;
+using ChinookDataAccess.PageData.Interfaces;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,7 +19,9 @@ builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 
 builder.Services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<ChinookUser>>();
-
+builder.Services.AddScoped<IIndexData, IndexPageData>();
+builder.Services.AddScoped<IArtistPage, ArtistPageData>();
+builder.Services.AddScoped<IPlayListPageData, PlayListPageData>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

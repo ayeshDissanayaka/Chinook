@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Chinook.Models
+namespace ChinookDataAccess.Models
 {
     public partial class Track
     {

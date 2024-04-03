@@ -1,6 +1,8 @@
-﻿namespace Chinook.Models;
+﻿using ChinookDataAccess.Models;
 
-public class UserPlaylist
+namespace ChinookDataAccess.ClientModels;
+
+public class UserPlaylistClient
 {
     public string UserId { get; set; }
     public long PlaylistId { get; set; }
